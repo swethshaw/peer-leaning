@@ -140,7 +140,9 @@ export default function App() {
 
                   {/* LMS Routes */}
                   <Route path="course" element={<CoursesPage />} />
+                  <Route path="courses" element={<CoursesPage />} />
                   <Route path="course/:id" element={<CourseDetailPage />} />
+                  <Route path="courses/:id" element={<CourseDetailPage />} />
                   <Route path="bookmarks" element={<BookmarksPage />} />
                   <Route path="lms-dashboard" element={<LMSDashboardPage />} />
                   <Route path="discussions" element={<DiscussionPage />} />
@@ -148,23 +150,41 @@ export default function App() {
                   <Route path="lms-leaderboard" element={<LMSLeaderboardPage />} />
 
                   {/* Project Routes */}
+                  <Route path="project" element={<ProjectDashboard />} />
+                  <Route path="project/explore" element={<ExploreProjects />} />
+                  <Route path="project/:id" element={<ProjectDetail />} />
                   <Route path="explore-projects" element={<ExploreProjects />} />
                   <Route path="project-dashboard" element={<ProjectDashboard />} />
-                  <Route path="project/:id" element={<ProjectDetail />} />
 
                   {/* Quiz Routes */}
                   <Route path="learning" element={<LearningPage />} />
                   <Route path="peer-quiz" element={<PeerQuizPage />} />
                   <Route path="results" element={<ResultsPage />} />
-                  <Route path="result/:id" element={<ResultDetailPage />} />
-                  <Route path="create-paper" element={<CreatePaperPage />} />
-                  <Route path="quiz-config" element={<QuizConfigPage />} />
-                  <Route path="quiz-lobby" element={<QuizLobbyPage />} />
-                  <Route path="quiz/active" element={<ActiveQuizPage />} />
-                  <Route path="proctor" element={<ProctorDashboardPage />} />
-                  <Route path="quiz-forum" element={<DiscussionForum />} />
-                  <Route path="quiz-leaderboard" element={<QuizLeaderboardPage />} />
+                  <Route path="results/:resultId" element={<ResultDetailPage />} />
+                  <Route path="create-paper/:topicId" element={<CreatePaperPage />} />
+                  <Route path="config/:topicId" element={<QuizConfigPage />} />
+                  <Route path="proctor/:roomCode" element={<ProctorDashboardPage />} />
+                  <Route path="forum" element={<DiscussionForum />} />
+                  <Route path="leaderboard" element={<QuizLeaderboardPage />} />
                 </Route>
+
+                {/* Quiz Fullscreen Routes */}
+                <Route
+                  path="/lobby/:topicId"
+                  element={
+                    <ProtectedRoute>
+                      <QuizLobbyPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/quiz/:topicId"
+                  element={
+                    <ProtectedRoute>
+                      <ActiveQuizPage />
+                    </ProtectedRoute>
+                  }
+                />
 
                 {/* Catch All */}
                 <Route path="*" element={<Navigate to="/" replace />} />

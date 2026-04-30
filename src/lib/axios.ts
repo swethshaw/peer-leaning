@@ -6,25 +6,25 @@ const api = axios.create({
 })
 
 // Attach JWT token on every request
-// api.interceptors.request.use((config) => {
-//   const token = localStorage.getItem('lms_token')
-//   if (token) config.headers.Authorization = `Bearer ${token}`
-//   return config
-// })
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('lms_token')
+  if (token) config.headers.Authorization = `Bearer ${token}`
+  return config
+})
 
 // Handle 401 — clear session and redirect (but not if already on auth pages)
-// api.interceptors.response.use(
-//   (res) => res,
-//   (err) => {
-//     if (err.response?.status === 401) {
-//       const onAuthPage = ['/login', '/register'].includes(window.location.pathname)
-//       if (!onAuthPage) {
-//         localStorage.removeItem('lms_token')
-//         window.location.href = '/login'
-//       }
-//     }
-//     return Promise.reject(err)
-//   }
-// )
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (err.response?.status === 401) {
+      const onAuthPage = ['/login', '/register'].includes(window.location.pathname)
+      if (!onAuthPage) {
+        localStorage.removeItem('lms_token')
+        window.location.href = '/login'
+      }
+    }
+    return Promise.reject(err)
+  }
+)
 
 export default api

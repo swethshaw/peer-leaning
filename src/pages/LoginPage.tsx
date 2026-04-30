@@ -105,7 +105,7 @@ export default function LoginPage() {
 
   const loadDemoAccount = () => {
     setEmail("alex@example.com");
-    setPassword("demo1234");
+    setPassword("Demo!1234");
     setErrorMsg("");
   };
 

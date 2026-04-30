@@ -37,14 +37,18 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     restoreSession();
   }, []);
 
-  const login = (userData: User) => {
+  const login = (userData: any) => {
     setUser(userData);
     localStorage.setItem('quiz_user_id', userData._id);
+    if (userData.token) {
+      localStorage.setItem('lms_token', userData.token);
+    }
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem('quiz_user_id');
+    localStorage.removeItem('lms_token');
   };
 
   return (
