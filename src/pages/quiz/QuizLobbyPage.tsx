@@ -12,7 +12,7 @@ import HostLobbyPanel from "../../components/quiz/lobby/HostLobbyPanel";
 import ParticipantLobbyPanel from "../../components/quiz/lobby/ParticipantLobbyPanel";
 
 const API_URL = import.meta.env.VITE_API_URL;
-const socket = io(API_URL);
+const socket = io(API_URL, { transports: ['websocket'] });
 type PlayMode = "individual" | "multi";
 
 export default function QuizLobbyPage() {

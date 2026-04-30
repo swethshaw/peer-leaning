@@ -24,7 +24,7 @@ import { io } from "socket.io-client";
 import { quizApi } from "../../api";
 
 const API_URL = import.meta.env.VITE_API_URL;
-const socket = io(API_URL);
+const socket = io(API_URL, { transports: ['websocket'] });
 
 export default function ActiveQuizPage() {
   const { topicId } = useParams<{ topicId: string }>();
