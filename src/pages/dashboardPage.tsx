@@ -54,7 +54,7 @@ export default function Dashboard() {
     const fetchDashboardData = async () => {
       try {
         const [leadRes, roomRes, actRes, dashRes, courseRes, projectRes] = await Promise.all([
-          leaderboardApi.getByCohort(activeCohort),
+          leaderboardApi.getCohort(activeCohort),
           dashboardApi.getActiveRooms(),
           dashboardApi.getActivity(user._id),
           dashboardApi.getDashboardStats(user._id),

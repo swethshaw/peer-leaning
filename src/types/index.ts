@@ -177,6 +177,7 @@ export interface Course {
   tags: string[];
   cohortId?: string;
   isEnrolled?: boolean;
+  isBookmarked?: boolean;
   createdAt: string;
 }
 
@@ -234,3 +235,10 @@ export interface AuthState {
   logout: () => void;
   fetchMe: () => Promise<void>;
 }
+
+export interface UserActivity {
+  _id: string; // date string
+  totalScore: number;
+  quizzesTaken: number;
+}
+

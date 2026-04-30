@@ -113,14 +113,15 @@ const ActivityLog: React.FC = () => {
       {/* Scrollable Feed */}
       <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3 hide-scrollbar min-h-[400px]">
         {sorted.length > 0 ? (
-          sorted.map(activity => {
+          sorted.map((activity, index) => {
             const config = ACTIVITY_CONFIG[activity.type] || ACTIVITY_CONFIG.general;
             const Icon = config.icon;
             const isUnread = !activity.read;
+            const itemKey = (activity as any)._id || activity.id || `activity-${index}`;
 
             return (
               <div
-                key={activity.id}
+                key={itemKey}
                 role="button"
                 tabIndex={0}
                 onClick={() => !activity.read && markActivityRead(activity.id)}

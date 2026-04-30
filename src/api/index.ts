@@ -3,7 +3,7 @@ import type { Course, Cohort, DiscussionPost } from '../types'
 
 // ─── Courses ─────────────────────────────────────────────────────────────────
 export const courseApi = {
-  getAll: (params?: { page?: number; limit?: number; category?: string; search?: string }) =>
+  getAll: (params?: { page?: number; limit?: number; category?: string; search?: string; cohortId?: string }) =>
     api.get('/courses', { params }),
 
   getById: (id: string) => api.get(`/courses/${id}`),
@@ -46,8 +46,8 @@ export const discussionApi = {
 
 // ─── Leaderboard ─────────────────────────────────────────────────────────────
 export const leaderboardApi = {
-  getGlobal: () => api.get('/leaderboard'),
-  getByCohort: (cohortId: string) => api.get(`/leaderboard/cohort/${cohortId}`),
+  getGlobal: () => api.get('/leaderboard/global'),
+  getCohort: (cohortId: string) => api.get(`/leaderboard/cohort/${cohortId}`),
 }
 
 // ─── Bookmarks ────────────────────────────────────────────────────────────────
@@ -64,6 +64,7 @@ export const projectApi = {
   create: (data: any) => api.post('/projects', data),
   getHosted: (userId: string) => api.get(`/projects/user/${userId}/hosted`),
   getEnrolled: (userId: string) => api.get(`/projects/user/${userId}/enrolled`),
+  getActivities: (userId: string) => api.get(`/projects/user/${userId}/activities`),
 }
 
 // ─── Applications ────────────────────────────────────────────────────────────
@@ -114,6 +115,7 @@ export const helpApi = {
 // ─── Dashboard ───────────────────────────────────────────────────────────────
 export const dashboardApi = {
   getActiveRooms: () => api.get('/rooms/active'),
+  getSummary: (cohortId?: string) => api.get('/dashboard/summary', { params: { cohortId } }),
   getActivity: (userId: string) => api.get(`/results/activity/${userId}`),
-  getDashboardStats: (userId: string) => api.get(`/results/dashboard/${userId}`),
+  getDashboardStats: (userId: string) => api.get(`/quiz/dashboard/${userId}`),
 }

@@ -1,43 +1,67 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Search, BookOpen, ChevronDown, Compass, Layers, Filter } from 'lucide-react'
 import { courseApi } from '../../api'
 import CourseCard from '../../components/lms/course/CourseCard'
 import { Spinner, EmptyState } from '../../components/lms/ui'
+import { useCohort } from '../../context/CohortContext'
 import type { Course } from '../../types'
-import { MOCK_COURSES } from '../../lib/mockData'
 
 const CATEGORIES = ['All', 'Web Dev', 'Backend', 'Data Science', 'Mobile', 'DevOps', 'DSA', 'System Design']
 const DIFFICULTIES = ['All', 'Beginner', 'Intermediate', 'Advanced']
 
 export default function CoursesPage() {
+  const { activeCohort, cohorts } = useCohort()
   const [courses, setCourses]     = useState<Course[]>([])
   const [loading, setLoading]     = useState(true)
   const [search, setSearch]       = useState('')
   const [category, setCategory]   = useState('All')
   const [difficulty, setDifficulty] = useState('All')
 
+  const currentCohort = useMemo(() => 
+    cohorts.find(c => c.name === activeCohort),
+    [cohorts, activeCohort]
+  )
+
   useEffect(() => {
     const load = async () => {
+      setLoading(true)
       try {
-        const res = await courseApi.getAll()
-        const d = res.data.data ?? []; 
-        setCourses(d.length ? d : MOCK_COURSES)
-      } catch {
-        setCourses(MOCK_COURSES)
+        const res = await courseApi.getAll({ cohortId: currentCohort?._id })
+        setCourses(res.data.data ?? [])
+      } catch (err) {
+        console.error("Failed to load courses:", err)
+        setCourses([])
       } finally {
         setLoading(false)
       }
     }
-    load()
-  }, [])
+    if (currentCohort?._id) {
+      load()
+    } else if (activeCohort) {
+       // If we have an active cohort name but no ID yet (loading), wait
+    } else {
+       setLoading(false)
+    }
+  }, [currentCohort?._id, activeCohort])
 
-  const filtered = courses.filter(c => {
-    const matchSearch = c.title.toLowerCase().includes(search.toLowerCase()) ||
-      c.description.toLowerCase().includes(search.toLowerCase())
-    const matchCat  = category   === 'All' || c.category === category
-    const matchDiff = difficulty === 'All' || c.difficulty === difficulty
-    return matchSearch && matchCat && matchDiff
-  })
+  const filtered = useMemo(() => {
+    return courses.filter(c => {
+      const matchSearch = c.title.toLowerCase().includes(search.toLowerCase()) ||
+        c.description.toLowerCase().includes(search.toLowerCase())
+      
+      // Strict Categorization Rule: Don't show Cyber in Web Dev/Full Stack
+      const isWebDev = category === 'Web Dev' || (activeCohort?.toLowerCase().includes('full stack'))
+      const isCyberCourse = c.category?.toLowerCase().includes('cyber') || c.tags?.some(t => t.toLowerCase().includes('cyber'))
+      
+      if (isWebDev && isCyberCourse) return false
+
+      const matchCat  = category   === 'All' || c.category === category
+      const matchDiff = difficulty === 'All' || c.difficulty === difficulty
+      
+      return matchSearch && matchCat && matchDiff
+    })
+  }, [courses, search, category, difficulty, activeCohort])
+
 
   return (
       <div className="mx-auto space-y-8">
@@ -54,6 +78,7 @@ export default function CoursesPage() {
             </p>
           </div>
         </div>
+
 
         {/* Premium Filter Bar */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 shadow-sm flex flex-col lg:flex-row gap-4">

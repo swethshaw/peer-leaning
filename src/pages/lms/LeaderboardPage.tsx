@@ -16,20 +16,30 @@ const medalIcon = (rank: number) => {
   return <span className="text-sm font-bold text-slate-500">#{rank}</span>
 }
 
+import { useCohort } from '../../context/CohortContext'
+
 export default function LeaderboardPage() {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([])
   const [loading, setLoading] = useState(true)
   const { user } = useAuthStore()
+  const { activeCohort, cohorts } = useCohort()
 
   useEffect(() => {
-    leaderboardApi.getGlobal()
+    setLoading(true)
+    const currentCohort = cohorts.find(c => c.name === activeCohort)
+    
+    const fetchPromise = currentCohort?._id 
+      ? leaderboardApi.getCohort(currentCohort._id)
+      : leaderboardApi.getGlobal()
+
+    fetchPromise
       .then(r => { 
         const d = r.data.data ?? []
         setEntries(d.length ? d : MOCK_LEADERBOARD) 
       })
       .catch(() => setEntries(MOCK_LEADERBOARD))
       .finally(() => setLoading(false))
-  }, [])
+  }, [activeCohort, cohorts])
 
   const myEntry = entries.find(e => e.user.name === user?.name)
 
@@ -164,10 +174,13 @@ export default function LeaderboardPage() {
                   </div>
 
                   <div className="text-right">
-                    <span className={`text-sm font-black ${isMe ? 'text-blue-600 dark:text-blue-400' : 'text-slate-900 dark:text-white'}`}>
-                      {entry.points.toLocaleString()}
-                    </span>
-                    <p className="md:hidden text-[10px] font-bold text-slate-400 uppercase">Pts</p>
+                    <div className="flex items-center gap-1.5 justify-end">
+                      <TrendingUp size={14} className="text-emerald-500" />
+                      <span className="text-base font-black text-slate-900 dark:text-white">
+                        {entry.points.toLocaleString()}
+                      </span>
+                    </div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Learning Points</p>
                   </div>
 
                   <span className="hidden md:block text-right text-sm font-bold text-slate-600 dark:text-slate-400">

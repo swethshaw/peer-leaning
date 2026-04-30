@@ -26,8 +26,7 @@ import { useTheme } from "../context/ThemeContext";
 import { useCohort } from "../context/CohortContext";
 import { useUser } from "../context/UserContext";
 import Logo from "./Logo";
-
-const API_URL = import.meta.env.VITE_API_URL;
+import { notificationApi } from "../api";
 
 export default function Sidebar({
   isOpen,
@@ -47,10 +46,8 @@ export default function Sidebar({
     const checkUnreadNotifications = async () => {
       if (!user) return;
       try {
-        const res = await fetch(
-          `${API_URL}/api/notifications/user/${user._id}`,
-        );
-        const data = await res.json();
+        const res = await notificationApi.getAll(user._id);
+        const data = res.data;
 
         if (data.success) {
           const unreadExists = data.data.some(
@@ -64,7 +61,7 @@ export default function Sidebar({
     };
 
     checkUnreadNotifications();
-  }, [user, activeCohort]);
+  }, [user?._id, activeCohort]);
 
   // Premium active state with subtle background and crisp text colors
   const navLinkClass = ({ isActive }: { isActive: boolean }) => `
@@ -223,7 +220,7 @@ export default function Sidebar({
                     <SubLink to="/learning" label="Practice" />
                     <SubLink to="/peer-quiz" label="Peer Quiz" />
                     <SubLink to="/results" label="My Results" />
-                    <SubLink to="/quiz-forum" label="Quiz Forum" />
+                    <SubLink to="/forum" label="Quiz Forum" />
                     <SubLink to="/quiz-leaderboard" label="Quiz Leaderboard" />
                   </div>
                 </div>

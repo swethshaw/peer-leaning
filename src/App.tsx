@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
@@ -78,25 +79,14 @@ const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-const LandingRoute = () => {
-  const { user, isAuthLoading } = useUser();
-
-  if (isAuthLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#0F172A]">
-        <div className="w-10 h-10 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
-
-  if (user) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
-  return <LandingPage />;
-};
 
 export default function App() {
+  useEffect(() => {
+    // Cleanup legacy auth keys
+    localStorage.removeItem('lms_token');
+    localStorage.removeItem('quiz_user_id');
+  }, []);
+
   return (
     <ThemeProvider>
       <UserProvider>
@@ -106,8 +96,8 @@ export default function App() {
               <Toaster position="top-right" />
               <Routes>
                 {/* Public Routes */}
-                <Route path="/" element={<LandingRoute />} />
-                <Route path="/landing" element={<LandingPage />} />
+                <Route path="/" element={<PublicRoute><LandingPage /></PublicRoute>} />
+                <Route path="/landing" element={<PublicRoute><LandingPage /></PublicRoute>} />
                 <Route
                   path="/login"
                   element={
@@ -145,8 +135,11 @@ export default function App() {
                   <Route path="courses/:id" element={<CourseDetailPage />} />
                   <Route path="bookmarks" element={<BookmarksPage />} />
                   <Route path="lms-dashboard" element={<LMSDashboardPage />} />
+                  <Route path="lms" element={<LMSDashboardPage />} />
                   <Route path="discussions" element={<DiscussionPage />} />
+                  <Route path="discussion" element={<DiscussionPage />} />
                   <Route path="discussion/:id" element={<DiscussionDetailPage />} />
+                  <Route path="discussions/:id" element={<DiscussionDetailPage />} />
                   <Route path="lms-leaderboard" element={<LMSLeaderboardPage />} />
 
                   {/* Project Routes */}
@@ -165,7 +158,7 @@ export default function App() {
                   <Route path="config/:topicId" element={<QuizConfigPage />} />
                   <Route path="proctor/:roomCode" element={<ProctorDashboardPage />} />
                   <Route path="forum" element={<DiscussionForum />} />
-                  <Route path="leaderboard" element={<QuizLeaderboardPage />} />
+                  <Route path="quiz-leaderboard" element={<QuizLeaderboardPage />} />
                 </Route>
 
                 {/* Quiz Fullscreen Routes */}

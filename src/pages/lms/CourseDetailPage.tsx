@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft, BookOpen, Play, FileText, Link as LinkIcon,
   CheckCircle2, Circle, ChevronDown, ChevronRight, Sparkles,
-  Clock, Layers, ShieldCheck, LayoutDashboard
+  Clock, Layers, ShieldCheck, LayoutDashboard, Trophy
 } from 'lucide-react'
 import { courseApi } from '../../api'
 import { Progress, DifficultyBadge, Tag, Spinner } from '../../components/lms/ui'
@@ -61,11 +61,15 @@ export default function CourseDetailPage() {
   const handleCompleteLesson = async (lessonId: string) => {
     if (!course) return
     try {
-      await courseApi.completeLesson(course._id, lessonId)
+      const res = await courseApi.completeLesson(course._id, lessonId)
+      const { progressPercent, completedLessons } = res.data.data
+
       setCourse(prev => {
         if (!prev) return prev
         return {
           ...prev,
+          progressPercent,
+          completedLessons,
           modules: prev.modules.map(m => ({
             ...m,
             lessons: m.lessons.map(l =>
@@ -85,7 +89,6 @@ export default function CourseDetailPage() {
 
   return (
     <div className="mx-auto space-y-8 pb-20">
-      {/* Navigation */}
       <button 
         onClick={() => navigate('/courses')} 
         className="group flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-blue-500 transition-colors"
@@ -94,7 +97,6 @@ export default function CourseDetailPage() {
         Back to Library
       </button>
 
-      {/* Course Hero - Glassmorphism Design */}
       <div className="relative overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/50 dark:shadow-none">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 to-indigo-600/10 dark:from-blue-500/10 dark:to-indigo-500/5" />
         
@@ -134,10 +136,22 @@ export default function CourseDetailPage() {
             </div>
           </div>
 
-          {/* Engagement Card */}
           <div className="lg:w-80 shrink-0">
             <div className="h-full rounded-2xl bg-slate-50 dark:bg-slate-800/50 p-6 border border-slate-200/50 dark:border-slate-700/50">
-              {course.isEnrolled ? (
+              {course.progressPercent === 100 ? (
+                <div className="space-y-5">
+                   <div className="flex flex-col items-center text-center p-4 bg-emerald-50 dark:bg-emerald-500/10 rounded-2xl border border-emerald-100 dark:border-emerald-500/20">
+                      <div className="h-16 w-16 bg-emerald-500 text-white rounded-full flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/20">
+                         <Trophy size={32} />
+                      </div>
+                      <h4 className="text-lg font-black text-emerald-700 dark:text-emerald-400 uppercase tracking-tight">Course Completed</h4>
+                      <p className="text-xs font-bold text-emerald-600/80 mt-1">Excellent work, pioneer!</p>
+                   </div>
+                   <button className="w-full py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-white shadow-sm hover:bg-slate-50 transition-all">
+                    Review Curriculum
+                  </button>
+                </div>
+              ) : course.isEnrolled ? (
                 <div className="space-y-5">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-bold text-slate-900 dark:text-white">Your Progress</span>
@@ -180,7 +194,6 @@ export default function CourseDetailPage() {
         </div>
       </div>
 
-      {/* Curriculum Grid */}
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
@@ -192,7 +205,26 @@ export default function CourseDetailPage() {
           </span>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 relative">
+          {!course.isEnrolled && (
+            <div className="absolute inset-0 z-10 bg-slate-50/20 dark:bg-slate-900/20 backdrop-blur-[2px] flex items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800">
+               <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 text-center max-w-sm mx-4">
+                  <ShieldCheck size={40} className="text-blue-500 mx-auto mb-4" />
+                  <h4 className="text-lg font-black text-slate-900 dark:text-white mb-2">Enrollment Required</h4>
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-6">
+                    You need to be enrolled in this course to access the lessons and track your progress.
+                  </p>
+                  <button 
+                    onClick={handleEnroll}
+                    disabled={enrolling}
+                    className="w-full py-3 bg-blue-600 text-white rounded-xl text-sm font-black shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-50"
+                  >
+                    {enrolling ? 'Enrolling...' : 'Enroll Now'}
+                  </button>
+               </div>
+            </div>
+          )}
+
           {course.modules.map((mod: Module) => {
             const isOpen = openModules.has(mod._id)
             const completedCount = mod.lessons.filter(l => l.isCompleted).length
@@ -285,7 +317,6 @@ export default function CourseDetailPage() {
   )
 }
 
-// Internal Loader component for cleaner buttons
 function Loader2({ size, className }: { size: number, className?: string }) {
   return <div className={`animate-spin rounded-full border-2 border-slate-200 border-t-blue-600 ${className}`} style={{ height: size, width: size }} />
 }

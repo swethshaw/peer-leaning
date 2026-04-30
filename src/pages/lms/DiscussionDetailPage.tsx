@@ -85,7 +85,7 @@ export default function DiscussionDetailPage() {
   return (
     <div className="mx-auto space-y-8 pb-20">
       <button 
-        onClick={() => navigate('/discussion')} 
+        onClick={() => navigate('/discussions')} 
         className="group flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-blue-500 transition-colors"
       >
         <ArrowLeft size={18} className="transition-transform group-hover:-translate-x-1" />
@@ -151,7 +151,7 @@ export default function DiscussionDetailPage() {
 
             <div className="ml-auto flex items-center gap-2 text-sm font-bold text-blue-600 dark:text-blue-400">
               <MessageSquare size={18} />
-              <span>{post.replies.length} Replies</span>
+              <span>{(post.replies?.length || 0)} Replies</span>
             </div>
           </div>
         </div>
@@ -164,16 +164,16 @@ export default function DiscussionDetailPage() {
         </h2>
         
         <div className="space-y-4">
-          {post.replies.map((r, index) => (
+          {(post.replies || []).map((r, index) => (
             <div 
               key={r._id} 
               className="group bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 transition-all animate-in fade-in slide-in-from-bottom-2"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="flex items-center gap-3 mb-3">
-                <Avatar name={r.author.name} src={r.author.avatar} size="sm" />
+                <Avatar name={r.author?.name || 'Unknown'} src={r.author?.avatar} size="sm" />
                 <div>
-                  <p className="text-sm font-bold text-slate-900 dark:text-white">{r.author.name}</p>
+                  <p className="text-sm font-bold text-slate-900 dark:text-white">{r.author?.name || 'Deleted User'}</p>
                   <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{timeAgo(r.createdAt)}</p>
                 </div>
               </div>

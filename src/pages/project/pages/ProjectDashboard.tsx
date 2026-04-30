@@ -5,16 +5,15 @@ import ActivityLog from '../../../components/project/dashboard/ActivityLog';
 import ApplicationTracker from '../../../components/project/dashboard/ApplicationTracker';
 import KanbanBoard from '../../../components/project/dashboard/KanbanBoard';
 import { useProject } from '../../../context/ProjectContext';
+import { useAuthStore } from '../../../store/authStore';
 import { FolderKanban, ClipboardCheck, Users, Briefcase, Sparkles, Layers, Activity } from 'lucide-react';
-import { getHostedProjects, getEnrolledProjects, getTasksForUser } from '../../../data/mockData';
 
 const ProjectDashboard: React.FC = () => {
-  const { currentUserId, currentUser, tasks, applications } = useProject();
+  const { hostedProjects, enrolledProjects, tasks, applications, isLoading } = useProject();
+  const { user } = useAuthStore();
 
-  const hosted = getHostedProjects(currentUserId);
-  const enrolled = getEnrolledProjects(currentUserId);
-  const myTasks = tasks.filter(t => t.assigneeId === currentUserId);
-  const myApps = applications.filter(a => a.userId === currentUserId);
+  const myTasks = tasks; 
+  const myApps = applications; 
   
   const activeTasks = myTasks.filter(t => t.status !== 'done').length;
   const pendingReviews = myTasks.filter(t => t.status === 'in-review').length;
@@ -31,7 +30,7 @@ const ProjectDashboard: React.FC = () => {
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
           <div>
             <h1 className="text-3xl md:text-4xl font-black text-white flex items-center gap-3 tracking-tight mb-2">
-              Welcome back, {currentUser?.name?.split(' ')[0]}! 
+              Welcome back, {user?.name?.split(' ')[0]}! 
               <Sparkles className="text-amber-400 animate-pulse" size={28} />
             </h1>
             <p className="text-blue-100 font-medium text-sm md:text-base max-w-xl">
@@ -42,14 +41,14 @@ const ProjectDashboard: React.FC = () => {
           {/* Banner Mini-Stats */}
           <div className="flex flex-wrap gap-4 md:gap-8 bg-white/10 dark:bg-black/20 backdrop-blur-md border border-white/20 rounded-2xl p-5 shadow-inner">
             <div className="flex flex-col">
-              <span className="text-3xl font-black text-white leading-none">{hosted.length}</span>
+              <span className="text-3xl font-black text-white leading-none">{hostedProjects.length}</span>
               <span className="text-[10px] font-bold uppercase tracking-widest text-blue-200 mt-1.5 flex items-center gap-1">
                 <Layers size={12} /> Hosted
               </span>
             </div>
             <div className="w-px bg-white/20 hidden sm:block"></div>
             <div className="flex flex-col">
-              <span className="text-3xl font-black text-white leading-none">{enrolled.length}</span>
+              <span className="text-3xl font-black text-white leading-none">{enrolledProjects.length}</span>
               <span className="text-[10px] font-bold uppercase tracking-widest text-blue-200 mt-1.5 flex items-center gap-1">
                 <Briefcase size={12} /> Enrolled
               </span>
@@ -76,7 +75,7 @@ const ProjectDashboard: React.FC = () => {
             </div>
             <div>
               <h4 className="text-3xl font-black text-slate-900 dark:text-white leading-none mb-1">
-                {hosted.length + enrolled.length}
+                {hostedProjects.length + enrolledProjects.length}
               </h4>
               <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 Total Projects
@@ -127,7 +126,7 @@ const ProjectDashboard: React.FC = () => {
             </div>
             <div>
               <h4 className="text-3xl font-black text-slate-900 dark:text-white leading-none mb-1">
-                {hosted.reduce((sum, p) => sum + p.currentParticipants, 0)}
+                {hostedProjects.reduce((sum, p) => sum + (p.currentParticipants || 0), 0)}
               </h4>
               <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 Team Members

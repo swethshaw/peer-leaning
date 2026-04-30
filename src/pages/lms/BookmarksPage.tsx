@@ -5,7 +5,6 @@ import { bookmarkApi } from '../../api'
 import CourseCard from '../../components/lms/course/CourseCard'
 import { Spinner, EmptyState } from '../../components/lms/ui'
 import type { Course } from '../../types'
-import { MOCK_BOOKMARKS } from '../../lib/mockData'
 
 export default function BookmarksPage() {
   const [courses, setCourses] = useState<Course[]>([])
@@ -15,9 +14,13 @@ export default function BookmarksPage() {
   useEffect(() => {
     bookmarkApi.getAll()
       .then(r => setCourses(r.data.data ?? []))
-      .catch(() => setCourses(MOCK_BOOKMARKS))
+      .catch((err) => {
+        console.error("Failed to load bookmarks:", err)
+        setCourses([])
+      })
       .finally(() => setLoading(false))
   }, [])
+
 
   return (
       <div className="mx-auto space-y-8">
@@ -76,7 +79,7 @@ export default function BookmarksPage() {
                 className="transition-all duration-300 hover:-translate-y-1"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
-                <CourseCard course={course} />
+                <CourseCard course={{ ...course, isBookmarked: true }} />
               </div>
             ))}
           </div>
