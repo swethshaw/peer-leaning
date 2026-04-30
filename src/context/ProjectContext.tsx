@@ -30,7 +30,10 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   const refreshData = useCallback(async () => {
-    if (!user?._id) return;
+    if (!user?._id) {
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     try {
       const [hRes, eRes, aRes, tRes, nRes, allRes] = await Promise.all([

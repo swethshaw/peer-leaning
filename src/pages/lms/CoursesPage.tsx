@@ -10,7 +10,7 @@ const CATEGORIES = ['All', 'Web Dev', 'Backend', 'Data Science', 'Mobile', 'DevO
 const DIFFICULTIES = ['All', 'Beginner', 'Intermediate', 'Advanced']
 
 export default function CoursesPage() {
-  const { activeCohort, cohorts } = useCohort()
+  const { activeCohort, allCohorts, isLoading: isCohortLoading } = useCohort()
   const [courses, setCourses]     = useState<Course[]>([])
   const [loading, setLoading]     = useState(true)
   const [search, setSearch]       = useState('')
@@ -18,15 +18,22 @@ export default function CoursesPage() {
   const [difficulty, setDifficulty] = useState('All')
 
   const currentCohort = useMemo(() => 
-    cohorts.find(c => c.name === activeCohort),
-    [cohorts, activeCohort]
+    allCohorts.find(c => c.name === activeCohort),
+    [allCohorts, activeCohort]
   )
 
   useEffect(() => {
+    // We wait for cohorts to load before deciding what to do
+    if (isCohortLoading) return;
+
     const load = async () => {
       setLoading(true)
       try {
-        const res = await courseApi.getAll({ cohortId: currentCohort?._id })
+        // Only pass cohortId if we actually have one
+        const params: any = {}
+        if (currentCohort?._id) params.cohortId = currentCohort._id;
+        
+        const res = await courseApi.getAll(params)
         setCourses(res.data.data ?? [])
       } catch (err) {
         console.error("Failed to load courses:", err)
@@ -35,14 +42,9 @@ export default function CoursesPage() {
         setLoading(false)
       }
     }
-    if (currentCohort?._id) {
-      load()
-    } else if (activeCohort) {
-       // If we have an active cohort name but no ID yet (loading), wait
-    } else {
-       setLoading(false)
-    }
-  }, [currentCohort?._id, activeCohort])
+
+    load()
+  }, [currentCohort?._id, activeCohort, isCohortLoading])
 
   const filtered = useMemo(() => {
     return courses.filter(c => {

@@ -18,6 +18,7 @@ interface CohortContextType {
   setActiveCohort: (cohort: string) => void;
   cohortData: Record<string, Topic[]>;
   cohorts: Cohort[];
+  allCohorts: Cohort[];
   isLoading: boolean;
   refreshData: () => Promise<void>;
 }
@@ -31,36 +32,47 @@ export const CohortProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [activeCohort, setActiveCohort] = useState('');
   const [cohortData, setCohortData] = useState<Record<string, Topic[]>>({});
   const [cohorts, setCohorts] = useState<Cohort[]>([]);
+  const [allCohorts, setAllCohorts] = useState<Cohort[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
   const { user } = useUser();
   const refreshData = useCallback(async () => {
-    if (!user) return;
+    if (!user?._id) return;
 
     try {
-      const [dashRes, cohRes] = await Promise.all([
+      const [dashRes, cohRes, allCohRes] = await Promise.all([
         dashboardApi.getDashboardStats(user._id),
-        cohortApi.getMyCohorts()
+        cohortApi.getMyCohorts(),
+        cohortApi.getAll()
       ]);
       
       const dashResult = dashRes.data;
+      const myCohorts = cohRes.data.success ? cohRes.data.data : [];
+      const everyCohort = allCohRes.data.success ? allCohRes.data.data : [];
       
       if (dashResult.success) {
         setCohortData(dashResult.data);
-        
-        const availableCohorts = Object.keys(dashResult.data);
-        if (availableCohorts.length > 0 && !activeCohort) {
-          setActiveCohort(availableCohorts[0]);
-        }
       }
 
-      if (cohRes.data.success) {
-        setCohorts(cohRes.data.data);
-      }
+      setCohorts(myCohorts);
+      setAllCohorts(everyCohort);
+
+      // Only set initial activeCohort if one isn't already selected
+      setActiveCohort(prev => {
+        if (prev && [...myCohorts.map(c => c.name), ...Object.keys(dashResult.data || {})].includes(prev)) {
+          return prev;
+        }
+        if (myCohorts.length > 0) return myCohorts[0].name;
+        if (dashResult.success) {
+          const available = Object.keys(dashResult.data);
+          if (available.length > 0) return available[0];
+        }
+        return prev;
+      });
     } catch (error) {
       console.error("Failed to fetch cohorts from backend:", error);
     }
-  }, [user?._id]); // Only depend on user._id
+  }, [user?._id]); 
 
   useEffect(() => {
     if (!user?._id) {
@@ -77,9 +89,10 @@ export const CohortProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setActiveCohort, 
     cohortData, 
     cohorts, 
+    allCohorts,
     isLoading, 
     refreshData 
-  }), [activeCohort, cohortData, cohorts, isLoading, refreshData]);
+  }), [activeCohort, cohortData, cohorts, allCohorts, isLoading, refreshData]);
 
   return (
     <CohortContext.Provider value={contextValue}>

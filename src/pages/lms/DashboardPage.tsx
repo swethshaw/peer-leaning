@@ -21,7 +21,7 @@ import { useCohort } from '../../context/CohortContext'
 
 export default function DashboardPage() {
   const { user, fetchMe } = useAuthStore()
-  const { activeCohort, cohorts } = useCohort()
+  const { activeCohort, cohorts, allCohorts } = useCohort()
   const navigate = useNavigate()
 
   const [myCourses, setMyCourses]         = useState<Course[]>([])
@@ -32,15 +32,18 @@ export default function DashboardPage() {
   const [performance, setPerformance] = useState({ streak: 0, weeklyTotal: 0 })
   const [loading, setLoading]         = useState(true)
 
-  const currentCohort = cohorts.find(c => c.name === activeCohort)
+  const currentCohort = allCohorts.find(c => c.name === activeCohort)
 
   useEffect(() => {
     const load = async () => {
-      if (!user?._id) return;
+      if (!user?._id) {
+        setLoading(false);
+        return;
+      }
       
       try {
         setLoading(true)
-        const currentCohortId = cohorts.find(c => c.name === activeCohort)?._id
+        const currentCohortId = allCohorts.find(c => c.name === activeCohort)?._id
         const res = await dashboardApi.getSummary(currentCohortId)
         const d = res.data.data
 
