@@ -1,13 +1,12 @@
 import React from 'react';
 import { useProject } from '../../../context/ProjectContext';
-import { getHostedProjects, getTasksForProject } from '../../../data/mockData';
+import { getTasksForProject } from '../../../data/mockData';
 import { useNavigate } from 'react-router-dom';
 import { FolderKanban, ArrowRight } from 'lucide-react';
 
 const HostWorkspace: React.FC = () => {
-  const { currentUserId, applications } = useProject();
+  const { hostedProjects, applications } = useProject();
   const navigate = useNavigate();
-  const hostedProjects = getHostedProjects(currentUserId);
 
   if (hostedProjects.length === 0) return null;
 

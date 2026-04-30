@@ -17,13 +17,15 @@ import TaskBoard from '../../../components/project/detail/TaskBoard';
 import ReviewFeedback from '../../../components/project/detail/ReviewFeedback';
 import MilestoneTracker from '../../../components/project/detail/MilestoneTracker';
 import { useProject } from '../../../context/ProjectContext';
+import { useAuthStore } from '../../../store/authStore';
 
 type DetailTab = 'overview' | 'hiring' | 'tasks' | 'reviews' | 'milestones';
 
 const ProjectDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { projects, currentUserId } = useProject();
+  const { projects } = useProject();
+  const { user } = useAuthStore();
 
   const project = projects.find(p => p.id === id);
   const [activeTab, setActiveTab] = useState<DetailTab>('overview');
@@ -52,8 +54,8 @@ const ProjectDetail: React.FC = () => {
     );
   }
 
-  const isHost = project.hostId === currentUserId;
-  const isParticipant = project.roles.some(r => r.assignedUserId === currentUserId);
+  const isHost = project.hostId === user?._id;
+  const isParticipant = project.roles.some(r => r.assignedUserId === user?._id);
 
   const tabs = [
     { key: 'overview', label: 'Overview', icon: LayoutDashboard, show: true },

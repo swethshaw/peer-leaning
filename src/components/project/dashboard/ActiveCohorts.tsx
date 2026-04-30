@@ -1,6 +1,7 @@
 import React from 'react';
 import { useProject } from '../../../context/ProjectContext';
-import { getCohortById, getEnrolledProjects, getHostedProjects } from '../../../data/mockData';
+import { useAuthStore } from '../../../store/authStore';
+import { getCohortById } from '../../../data/mockData';
 import { getDaysUntil } from '../../../utils/helpers';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -15,12 +16,11 @@ import {
 } from 'lucide-react';
 
 const ActiveCohorts: React.FC = () => {
-  const { currentUserId } = useProject();
+  const { hostedProjects, enrolledProjects } = useProject();
+  const { user } = useAuthStore();
   const navigate = useNavigate();
 
-  const enrolled = getEnrolledProjects(currentUserId);
-  const hosted = getHostedProjects(currentUserId);
-  const allProjects = [...hosted, ...enrolled].filter(p => p.status !== 'completed' && p.status !== 'archived');
+  const allProjects = [...hostedProjects, ...enrolledProjects].filter(p => p.status !== 'completed' && p.status !== 'archived');
 
   return (
     <div className="space-y-6">
@@ -63,7 +63,7 @@ const ActiveCohorts: React.FC = () => {
         {allProjects.map(project => {
           const cohort = getCohortById(project.cohortId);
           const daysLeft = getDaysUntil(project.deadline);
-          const isHost = project.hostId === currentUserId;
+          const isHost = project.hostId === user?._id;
 
           // Status and Role Styling Configurations
           const roleConfig = isHost 

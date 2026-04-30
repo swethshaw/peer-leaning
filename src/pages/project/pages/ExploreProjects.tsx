@@ -5,6 +5,7 @@ import FilterBar from '../../../components/project/explore/FilterBar';
 import ProjectCard from '../../../components/project/explore/ProjectCard';
 import TrendingSection from '../../../components/project/explore/TrendingSection';
 import { useProject } from '../../../context/ProjectContext';
+import { useAuthStore } from '../../../store/authStore';
 
 const statusMap: Record<string, string> = {
   'All': '',
@@ -14,7 +15,8 @@ const statusMap: Record<string, string> = {
 };
 
 const ExploreProjects: React.FC = () => {
-  const { projects, currentUser } = useProject();
+  const { projects } = useProject();
+  const { user } = useAuthStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [selectedStatus, setSelectedStatus] = useState('All');
@@ -50,9 +52,9 @@ const ExploreProjects: React.FC = () => {
   const recommended = useMemo(() => {
     return projects
       .filter(p => p.status === 'hiring')
-      .filter(p => p.techStack.some(t => (currentUser?.skills || []).some(s => t.toLowerCase().includes(s.toLowerCase()))))
+      .filter(p => p.techStack.some(t => (user?.skills || []).some(s => t.toLowerCase().includes(s.toLowerCase()))))
       .slice(0, 4);
-  }, [projects, currentUser?.skills]);
+  }, [projects, user?.skills]);
 
   const clearFilters = () => {
     setSearchQuery('');

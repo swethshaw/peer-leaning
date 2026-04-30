@@ -1,5 +1,6 @@
 import React from 'react';
 import { useProject } from '../../../context/ProjectContext';
+import { useAuthStore } from '../../../store/authStore';
 import { getProjectById } from '../../../data/mockData';
 import { TaskStatus } from '../../../types';
 import { Calendar, FolderKanban, FolderGit2 } from 'lucide-react';
@@ -26,8 +27,9 @@ const PRIORITY_CONFIG: Record<string, string> = {
 };
 
 const KanbanBoard: React.FC = () => {
-  const { currentUserId, tasks } = useProject();
-  const myTasks = tasks.filter(t => t.assigneeId === currentUserId);
+  const { tasks } = useProject();
+  const { user } = useAuthStore();
+  const myTasks = tasks.filter(t => t.assigneeId === user?._id);
 
   return (
     <div className="space-y-6">

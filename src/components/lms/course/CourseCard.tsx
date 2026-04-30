@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BookOpen, Clock, Layers, ArrowRight, Bookmark } from 'lucide-react'
+import { BookOpen, Clock, Layers, ArrowRight, Bookmark, CheckCircle2 } from 'lucide-react'
 import { Progress, DifficultyBadge, Tag } from '../../lms/ui'
 import { bookmarkApi } from '../../../api'
 import type { Course } from '../../../types'

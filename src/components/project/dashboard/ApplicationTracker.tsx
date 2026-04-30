@@ -1,5 +1,6 @@
 import React from 'react';
 import { useProject } from '../../../context/ProjectContext';
+import { useAuthStore } from '../../../store/authStore';
 import { getProjectById } from '../../../data/mockData';
 import { ApplicationStatus } from '../../../types';
 import { 
@@ -66,8 +67,9 @@ const COLUMN_CONFIG: ColumnConfig[] = [
 ];
 
 const ApplicationTracker: React.FC = () => {
-  const { currentUserId, applications } = useProject();
-  const myApps = applications.filter(a => a.userId === currentUserId);
+  const { applications } = useProject();
+  const { user } = useAuthStore();
+  const myApps = applications.filter(a => a.userId === user?._id);
 
   return (
     <div className="flex flex-col h-full bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-800">
